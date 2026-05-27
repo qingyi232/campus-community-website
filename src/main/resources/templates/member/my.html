@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('我的社团 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-person-badge"></i> 我的社团</h2>
+            <a th:href="@{/club/list}" class="btn btn-primary btn-sm">浏览更多社团</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(members)}" class="empty-state">
+            您还没有加入任何社团，<a th:href="@{/club/list}">去看看</a>
+        </div>
+
+        <div class="table-wrapper" th:unless="${#lists.isEmpty(members)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>社团名称</th>
+                    <th>职位</th>
+                    <th>状态</th>
+                    <th>加入时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member : ${members}">
+                    <td><a th:href="@{/club/detail/{id}(id=${member.clubId})}" th:text="${member.clubName}"></a></td>
+                    <td><span class="tag tag-blue" th:text="${member.position}"></span></td>
+                    <td>
+                        <span th:if="${member.status == 0}" class="tag tag-orange">待审核</span>
+                        <span th:if="${member.status == 1}" class="tag tag-green">正常</span>
+                        <span th:if="${member.status == 2}" class="tag tag-red">已退出</span>
+                    </td>
+                    <td th:text="${#temporals.format(member.joinTime, 'yyyy-MM-dd')}"></td>
+                    <td>
+                        <a th:href="@{/club/detail/{id}(id=${member.clubId})}" class="btn btn-outline btn-sm">查看社团</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('编辑资讯 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-pencil-square"></i> 编辑资讯</h2>
+            <a th:href="@{/news/detail/{id}(id=${news.id})}" class="btn btn-outline btn-sm">返回详情</a>
+        </div>
+        <form th:action="@{/news/update}" method="post">
+            <input type="hidden" name="id" th:value="${news.id}">
+            <div class="form-group">
+                <label>资讯标题 *</label>
+                <input type="text" name="title" class="form-control" th:value="${news.title}" required>
+            </div>
+            <div class="form-group">
+                <label>所属社团</label>
+                <select name="clubId" class="form-control">
+                    <option value="">请选择社团（可不选）</option>
+                    <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"
+                            th:selected="${club.id == news.clubId}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>资讯内容</label>
+                <textarea name="content" class="form-control" rows="10" th:text="${news.content}"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

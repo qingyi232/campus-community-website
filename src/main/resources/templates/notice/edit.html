@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('编辑公告 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-pencil-square"></i> 编辑公告</h2>
+            <a th:href="@{/notice/detail/{id}(id=${notice.id})}" class="btn btn-outline btn-sm">返回详情</a>
+        </div>
+        <form th:action="@{/notice/update}" method="post">
+            <input type="hidden" name="id" th:value="${notice.id}">
+            <div class="form-group">
+                <label>公告标题 *</label>
+                <input type="text" name="title" class="form-control" th:value="${notice.title}" required>
+            </div>
+            <div class="form-group">
+                <label>是否置顶</label>
+                <select name="top" class="form-control">
+                    <option value="0" th:selected="${notice.top == 0}">否</option>
+                    <option value="1" th:selected="${notice.top == 1}">是</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>公告内容</label>
+                <textarea name="content" class="form-control" rows="10" th:text="${notice.content}"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('登录 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="auth-wrapper">
+    <div class="auth-box">
+        <div class="auth-banner">
+            <div class="auth-banner-content">
+                <i class="bi bi-mortarboard-fill" style="font-size: 48px;"></i>
+                <h3>校园社团网站</h3>
+                <p>发现精彩社团，参与丰富活动<br>共建美好校园生活</p>
+                <div class="auth-banner-features">
+                    <div><i class="bi bi-check-circle"></i> 加入社团组织</div>
+                    <div><i class="bi bi-check-circle"></i> 参与校园活动</div>
+                    <div><i class="bi bi-check-circle"></i> 浏览校园资讯</div>
+                </div>
+            </div>
+        </div>
+        <div class="auth-form-area">
+            <h2><i class="bi bi-box-arrow-in-right"></i> 用户登录</h2>
+            <p class="subtitle">请选择身份类型并登录</p>
+
+            <div class="role-tabs">
+                <div class="role-tab active" data-role="0" onclick="switchRole(this)">
+                    <i class="bi bi-person"></i>
+                    <span>普通用户</span>
+                </div>
+                <div class="role-tab" data-role="2" onclick="switchRole(this)">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>系统管理员</span>
+                </div>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <form th:action="@{/doLogin}" method="post">
+                <input type="hidden" name="loginRole" id="loginRole" value="0">
+                <div class="form-group">
+                    <label><i class="bi bi-person"></i> 用户名</label>
+                    <input type="text" name="username" class="form-control" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="bi bi-lock"></i> 密码</label>
+                    <input type="password" name="password" class="form-control" placeholder="请输入密码" required>
+                </div>
+                <div class="form-group" style="margin-top: 28px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                        <i class="bi bi-box-arrow-in-right"></i> 登 录
+                    </button>
+                </div>
+            </form>
+            <div class="auth-footer">
+                还没有账号？<a th:href="@{/register}">立即注册</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+
+<script>
+function switchRole(el) {
+    document.querySelectorAll('.role-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+    el.classList.add('active');
+    document.getElementById('loginRole').value = el.getAttribute('data-role');
+}
+</script>
+</body>
+</html>

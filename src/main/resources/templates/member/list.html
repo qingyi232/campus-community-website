@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('成员管理 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-person-lines-fill"></i> 成员管理
+                <span th:if="${club != null}" th:text="' - ' + ${club.name}" style="color:#2e7d32;"></span>
+            </h2>
+            <div class="btn-group">
+                <form th:action="@{/member/list}" method="get" style="display:flex; gap:8px;">
+                    <select name="clubId" class="form-control" style="width:200px;">
+                        <option value="">全部社团</option>
+                        <option th:each="c : ${clubs}" th:value="${c.id}" th:text="${c.name}"
+                                th:selected="${club != null and c.id == club.id}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">筛选</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div th:if="${#lists.isEmpty(members)}" class="empty-state">暂无成员记录</div>
+
+        <div class="table-wrapper" th:unless="${#lists.isEmpty(members)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th>姓名</th>
+                    <th>所属社团</th>
+                    <th>职位</th>
+                    <th>状态</th>
+                    <th>加入时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member : ${members}">
+                    <td th:text="${member.username}"></td>
+                    <td th:text="${member.realName != null ? member.realName : '-'}"></td>
+                    <td th:text="${member.clubName}"></td>
+                    <td>
+                        <form th:action="@{/member/updatePosition}" method="post" style="display:flex; gap:4px;">
+                            <input type="hidden" name="id" th:value="${member.id}">
+                            <select name="position" class="form-control" style="width:100px; padding:4px 8px; font-size:13px;">
+                                <option value="社长" th:selected="${member.position == '社长'}">社长</option>
+                                <option value="副社长" th:selected="${member.position == '副社长'}">副社长</option>
+                                <option value="部长" th:selected="${member.position == '部长'}">部长</option>
+                                <option value="成员" th:selected="${member.position == '成员'}">成员</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm">保存</button>
+                        </form>
+                    </td>
+                    <td>
+                        <span th:if="${member.status == 0}" class="tag tag-orange">待审核</span>
+                        <span th:if="${member.status == 1}" class="tag tag-green">正常</span>
+                        <span th:if="${member.status == 2}" class="tag tag-red">已退出</span>
+                    </td>
+                    <td th:text="${#temporals.format(member.joinTime, 'yyyy-MM-dd')}"></td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:if="${member.status == 0}" th:href="@{/member/approve/{id}(id=${member.id})}"
+                               class="btn btn-success btn-sm">通过</a>
+                            <a th:if="${member.status == 0}" th:href="@{/member/reject/{id}(id=${member.id})}"
+                               class="btn btn-danger btn-sm">拒绝</a>
+                            <a th:if="${member.status == 1}" th:href="@{/member/remove/{id}(id=${member.id})}"
+                               class="btn btn-danger btn-sm" onclick="return confirm('确定移除该成员？')">移除</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

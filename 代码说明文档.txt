@@ -1,0 +1,700 @@
+========================================================
+    校园社团网站 - 代码与文件说明文档
+========================================================
+
+本文档详细说明项目的每个文件的作用，以及后期想要修改
+各类内容时应该去哪个文件修改、怎么改。
+
+
+========================================================
+一、项目整体目录结构
+========================================================
+
+校园社区网站/
+│
+├── pom.xml                            Maven 依赖配置文件
+├── README.md                          项目简介
+├── 测试账号.txt                       测试账号信息
+├── 部署文档.txt                       部署运行指南
+├── 代码说明文档.txt                   本文档
+│
+└── src/main/
+    ├── java/com/campus/community/     Java 后端代码
+    │   ├── CampusCommunityApplication.java   程序启动入口
+    │   ├── config/
+    │   │   └── WebConfig.java                Web配置（拦截器等）
+    │   ├── interceptor/
+    │   │   └── LoginInterceptor.java         登录拦截器
+    │   ├── controller/                       控制器层（处理页面请求）
+    │   │   ├── IndexController.java          首页
+    │   │   ├── UserController.java           用户/登录/注册/管理
+    │   │   ├── ClubController.java           社团管理
+    │   │   ├── ActivityController.java       活动管理
+    │   │   ├── NewsController.java           资讯管理
+    │   │   ├── NoticeController.java         公告管理
+    │   │   ├── MessageController.java        留言管理
+    │   │   └── MemberController.java         成员管理
+    │   ├── entity/                           实体类（数据库表对应的Java对象）
+    │   │   ├── User.java                     用户表
+    │   │   ├── Club.java                     社团表
+    │   │   ├── Activity.java                 活动表
+    │   │   ├── News.java                     资讯表
+    │   │   ├── Notice.java                   公告表
+    │   │   ├── Message.java                  留言表
+    │   │   └── Member.java                   成员表
+    │   ├── repository/                       数据访问层（数据库操作接口）
+    │   │   ├── UserRepository.java
+    │   │   ├── ClubRepository.java
+    │   │   ├── ActivityRepository.java
+    │   │   ├── NewsRepository.java
+    │   │   ├── NoticeRepository.java
+    │   │   ├── MessageRepository.java
+    │   │   └── MemberRepository.java
+    │   └── service/                          业务逻辑层
+    │       ├── UserService.java
+    │       ├── ClubService.java
+    │       ├── ActivityService.java
+    │       ├── NewsService.java
+    │       ├── NoticeService.java
+    │       ├── MessageService.java
+    │       └── MemberService.java
+    │
+    └── resources/                            资源文件
+        ├── application.yml                   项目配置文件
+        ├── data.sql                          初始化示例数据
+        ├── static/
+        │   └── css/
+        │       └── style.css                 全站样式表
+        └── templates/                        前端页面模板（Thymeleaf）
+            ├── index.html                    首页
+            ├── login.html                    登录页
+            ├── register.html                 注册页
+            ├── fragments/
+            │   └── header.html               公共头部（导航栏+页脚）
+            ├── club/
+            │   ├── list.html                 社团列表页
+            │   ├── detail.html               社团详情页
+            │   ├── add.html                  创建社团页
+            │   └── edit.html                 编辑社团页
+            ├── activity/
+            │   ├── list.html                 活动列表页
+            │   ├── detail.html               活动详情页
+            │   ├── add.html                  发布活动页
+            │   └── edit.html                 编辑活动页
+            ├── news/
+            │   ├── list.html                 资讯列表页
+            │   ├── detail.html               资讯详情页
+            │   ├── add.html                  发布资讯页
+            │   └── edit.html                 编辑资讯页
+            ├── notice/
+            │   ├── list.html                 公告列表页
+            │   ├── detail.html               公告详情页
+            │   ├── add.html                  发布公告页
+            │   └── edit.html                 编辑公告页
+            ├── message/
+            │   └── list.html                 留言列表页（含发表和回复）
+            ├── member/
+            │   ├── list.html                 成员管理页
+            │   └── my.html                   我的社团页
+            ├── admin/
+            │   └── userList.html             用户管理页（管理员专用）
+            └── user/
+                └── profile.html              个人中心页
+
+
+========================================================
+二、代码架构说明（四层结构）
+========================================================
+
+本项目采用经典的 Spring Boot 四层架构：
+
+  请求流程：浏览器 → Controller → Service → Repository → 数据库
+
+  1. Controller（控制器层）
+     - 接收浏览器的请求（URL），调用 Service 处理业务
+     - 将处理结果传给前端页面（Model）或重定向
+     - 文件位置：controller/ 目录下
+
+  2. Service（业务逻辑层）
+     - 处理具体的业务逻辑（增删改查的组合操作）
+     - 调用 Repository 与数据库交互
+     - 文件位置：service/ 目录下
+
+  3. Repository（数据访问层）
+     - 直接与数据库交互，执行 SQL 操作
+     - 使用 Spring Data JPA，大部分方法自动生成
+     - 文件位置：repository/ 目录下
+
+  4. Entity（实体层）
+     - 定义数据库表对应的 Java 对象
+     - 每个实体类对应数据库中的一张表
+     - 文件位置：entity/ 目录下
+
+
+========================================================
+三、数据库表结构说明
+========================================================
+
+系统共 7 张表，程序启动时自动创建：
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_user（用户表）                              │
+├─────────────┬──────────┬───────────────────────────┤
+│ 字段         │ 类型     │ 说明                      │
+├─────────────┼──────────┼───────────────────────────┤
+│ id           │ 自增主键 │ 用户ID                    │
+│ username     │ 字符串   │ 用户名（登录用）          │
+│ password     │ 字符串   │ 密码（明文存储）          │
+│ real_name    │ 字符串   │ 真实姓名                  │
+│ phone        │ 字符串   │ 手机号                    │
+│ email        │ 字符串   │ 邮箱                      │
+│ gender       │ 字符串   │ 性别（男/女）             │
+│ department   │ 字符串   │ 所在院系                  │
+│ student_no   │ 字符串   │ 学号                      │
+│ role         │ 整数     │ 角色：0=普通用户 2=管理员 │
+│ avatar       │ 字符串   │ 头像路径                  │
+│ create_time  │ 时间     │ 注册时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_club（社团表）                              │
+├─────────────┬──────────┬───────────────────────────┤
+│ id           │ 自增主键 │ 社团ID                    │
+│ name         │ 字符串   │ 社团名称                  │
+│ category     │ 字符串   │ 社团类别                  │
+│ description  │ 长文本   │ 社团简介                  │
+│ president    │ 字符串   │ 社长姓名                  │
+│ contact_phone│ 字符串   │ 联系电话                  │
+│ member_count │ 整数     │ 成员人数                  │
+│ logo         │ 字符串   │ 社团Logo路径              │
+│ status       │ 整数     │ 0=待审核 1=正常 2=已解散  │
+│ creator_id   │ 整数     │ 创建者用户ID              │
+│ create_time  │ 时间     │ 创建时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_activity（活动表）                          │
+├──────────────────┬──────────┬──────────────────────┤
+│ id                │ 自增主键 │ 活动ID               │
+│ title             │ 字符串   │ 活动标题             │
+│ content           │ 长文本   │ 活动详情             │
+│ location          │ 字符串   │ 活动地点             │
+│ start_time        │ 时间     │ 开始时间             │
+│ end_time          │ 时间     │ 结束时间             │
+│ club_id           │ 整数     │ 所属社团ID           │
+│ club_name         │ 字符串   │ 所属社团名称         │
+│ publisher_id      │ 整数     │ 发布者ID             │
+│ publisher_name    │ 字符串   │ 发布者名称           │
+│ max_participants  │ 整数     │ 最大参与人数         │
+│ current_participants│ 整数   │ 当前报名人数         │
+│ status            │ 整数     │ 0=报名中 1=进行中    │
+│                   │          │ 2=已结束             │
+│ cover_image       │ 字符串   │ 封面图片路径         │
+│ create_time       │ 时间     │ 创建时间             │
+└──────────────────┴──────────┴──────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_news（资讯表）                              │
+├─────────────┬──────────┬───────────────────────────┤
+│ id           │ 自增主键 │ 资讯ID                    │
+│ title        │ 字符串   │ 资讯标题                  │
+│ content      │ 长文本   │ 资讯内容                  │
+│ club_id      │ 整数     │ 所属社团ID                │
+│ club_name    │ 字符串   │ 所属社团名称              │
+│ publisher_id │ 整数     │ 发布者ID                  │
+│ publisher_name│ 字符串  │ 发布者名称                │
+│ view_count   │ 整数     │ 浏览次数                  │
+│ cover_image  │ 字符串   │ 封面图片路径              │
+│ create_time  │ 时间     │ 创建时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_notice（公告表）                            │
+├─────────────┬──────────┬───────────────────────────┤
+│ id           │ 自增主键 │ 公告ID                    │
+│ title        │ 字符串   │ 公告标题                  │
+│ content      │ 长文本   │ 公告内容                  │
+│ publisher    │ 字符串   │ 发布人                    │
+│ top          │ 整数     │ 0=普通 1=置顶             │
+│ view_count   │ 整数     │ 浏览次数                  │
+│ create_time  │ 时间     │ 创建时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_message（留言表）                           │
+├─────────────┬──────────┬───────────────────────────┤
+│ id           │ 自增主键 │ 留言ID                    │
+│ content      │ 长文本   │ 留言内容                  │
+│ user_id      │ 整数     │ 留言者用户ID              │
+│ username     │ 字符串   │ 留言者用户名              │
+│ reply        │ 长文本   │ 管理员回复内容            │
+│ reply_by     │ 字符串   │ 回复人用户名              │
+│ reply_time   │ 时间     │ 回复时间                  │
+│ status       │ 整数     │ 0=未回复 1=已回复         │
+│ create_time  │ 时间     │ 留言时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+┌────────────────────────────────────────────────────┐
+│ 表名: t_member（社团成员表）                        │
+├─────────────┬──────────┬───────────────────────────┤
+│ id           │ 自增主键 │ 记录ID                    │
+│ user_id      │ 整数     │ 用户ID                    │
+│ username     │ 字符串   │ 用户名                    │
+│ real_name    │ 字符串   │ 真实姓名                  │
+│ club_id      │ 整数     │ 社团ID                    │
+│ club_name    │ 字符串   │ 社团名称                  │
+│ position     │ 字符串   │ 职位（社长/副社长/成员）  │
+│ status       │ 整数     │ 0=待审核 1=正常 2=已退出  │
+│ join_time    │ 时间     │ 加入时间                  │
+└─────────────┴──────────┴───────────────────────────┘
+
+
+========================================================
+四、角色与权限说明
+========================================================
+
+系统有两种角色：
+
+  ┌──────────────┬───────────────────────────────────┐
+  │ 角色          │ 权限                              │
+  ├──────────────┼───────────────────────────────────┤
+  │ 普通用户      │ 浏览所有内容                      │
+  │ （role=0）    │ 加入社团                          │
+  │              │ 发表留言                          │
+  │              │ 查看个人中心、修改个人信息         │
+  │              │ 查看"我的社团"                    │
+  ├──────────────┼───────────────────────────────────┤
+  │ 系统管理员    │ 拥有普通用户的所有权限            │
+  │ （role=2）    │ 管理用户（查看、删除）            │
+  │              │ 管理社团（创建、编辑、删除）       │
+  │              │ 管理活动（发布、编辑、删除）       │
+  │              │ 管理资讯（发布、编辑、删除）       │
+  │              │ 管理公告（发布、编辑、删除）       │
+  │              │ 管理留言（回复、删除）             │
+  │              │ 管理成员（审批、移除、改职位）     │
+  └──────────────┴───────────────────────────────────┘
+
+  权限控制位置：
+  - 后端：各 Controller 中通过 session 获取当前用户，
+          判断 loginUser.getRole() == 2 来控制管理操作
+  - 前端：各 HTML 模板中通过 Thymeleaf 的 th:if 判断
+          session.loginUser.role == 2 来控制按钮显示
+
+
+========================================================
+五、各文件详细说明
+========================================================
+
+【配置文件】
+------------------------------------------
+
+1. pom.xml
+   作用：Maven 项目配置，定义了项目依赖的第三方库
+   修改场景：需要引入新的功能库时修改
+   当前依赖：
+   - spring-boot-starter-web      Web框架
+   - spring-boot-starter-thymeleaf 前端模板引擎
+   - spring-boot-starter-data-jpa  数据库操作
+   - mysql-connector-java          MySQL驱动
+   - lombok                        简化代码（自动生成getter/setter）
+   - thymeleaf-layout-dialect      模板布局
+
+2. src/main/resources/application.yml
+   作用：项目核心配置文件
+   常见修改：
+   - 修改端口号：     server.port（默认8080）
+   - 修改数据库地址： spring.datasource.url
+   - 修改数据库用户名：spring.datasource.username
+   - 修改数据库密码： spring.datasource.password
+
+3. src/main/resources/data.sql
+   作用：项目启动时自动执行的初始化数据脚本
+   说明：每次启动都会执行，但使用了 NOT EXISTS 判断，
+         已存在的数据不会重复插入
+   修改场景：
+   - 想修改预置的社团信息 → 修改 INSERT INTO t_club 部分
+   - 想修改预置的活动信息 → 修改 INSERT INTO t_activity 部分
+   - 想修改预置的资讯信息 → 修改 INSERT INTO t_news 部分
+   - 想修改预置的公告信息 → 修改 INSERT INTO t_notice 部分
+   - 想增减测试用户     → 修改 INSERT INTO t_user 部分
+   ★ 修改后需要先清空数据库再重启才能生效（参见部署文档"问题7"）
+
+
+【Java 后端代码】
+------------------------------------------
+
+4. CampusCommunityApplication.java
+   作用：程序启动入口，包含 main 方法
+   修改场景：一般不需要修改
+
+5. config/WebConfig.java
+   作用：Web 配置类，注册登录拦截器
+   修改场景：
+   - 想让某个页面不需要登录就能访问 → 在 excludePathPatterns 中添加路径
+   - 想让某个页面必须登录才能访问   → 从 excludePathPatterns 中删除路径
+   当前免登录页面：首页、登录、注册、社团列表/详情、活动列表/详情、
+                   资讯列表/详情、公告列表/详情、留言列表
+
+6. interceptor/LoginInterceptor.java
+   作用：登录拦截器，检查用户是否已登录
+   说明：未登录用户访问需要登录的页面时，自动跳转到登录页
+   修改场景：一般不需要修改
+
+7. controller/IndexController.java
+   作用：处理首页请求
+   说明：查询各模块的统计数据和最新内容展示在首页
+   修改场景：想在首页增加展示内容时修改
+
+8. controller/UserController.java
+   作用：处理用户相关请求
+   功能：登录、注册、登出、个人中心、修改资料、管理员用户管理
+   修改场景：
+   - 修改登录逻辑（如加验证码）→ 修改 doLogin 方法
+   - 修改注册逻辑（如加字段）  → 修改 doRegister 方法
+   - 修改管理员登录后跳转页面  → 修改 doLogin 中的 redirect 地址
+
+9. controller/ClubController.java
+   作用：处理社团相关请求
+   功能：社团列表、详情、创建、编辑、删除、加入社团
+   修改场景：
+   - 修改社团搜索逻辑  → 修改 list 方法
+   - 修改社团创建流程  → 修改 save 方法
+   - 修改加入社团逻辑  → 修改 join 方法
+
+10. controller/ActivityController.java
+    作用：处理活动相关请求
+    功能：活动列表、详情、发布、编辑、删除
+
+11. controller/NewsController.java
+    作用：处理资讯相关请求
+    功能：资讯列表、详情、发布、编辑、删除
+
+12. controller/NoticeController.java
+    作用：处理公告相关请求
+    功能：公告列表、详情、发布、编辑、删除
+
+13. controller/MessageController.java
+    作用：处理留言相关请求
+    功能：留言列表、发表留言、管理员回复、删除留言
+
+14. controller/MemberController.java
+    作用：处理社团成员相关请求
+    功能：成员列表、审批加入、拒绝、移除、修改职位、我的社团
+
+15-21. entity/ 目录下的 7 个实体类
+    作用：定义数据库表结构（一个类对应一张表）
+    说明：使用 @Entity 注解，JPA 会自动根据类的字段创建数据库表
+    修改场景：
+    - 想给某张表增加新字段 → 在对应的实体类中添加新的 private 字段
+      例如想给社团表加一个"创建年份"字段：
+      在 Club.java 中加一行：private Integer foundYear;
+      然后重启程序，JPA 会自动在表中添加对应的列
+    ★ 注意：只能增加字段，不要删除已有字段，否则可能导致数据丢失
+
+22-28. repository/ 目录下的 7 个接口
+    作用：定义数据库操作方法
+    说明：继承 JpaRepository，常用的增删改查方法自动生成
+    修改场景：
+    - 想增加新的查询方式 → 在对应接口中添加方法
+      例如想按分类查询社团：
+      在 ClubRepository.java 中加一行：
+      List<Club> findByCategory(String category);
+      Spring Data JPA 会根据方法名自动生成 SQL
+
+29-35. service/ 目录下的 7 个服务类
+    作用：封装业务逻辑，调用 Repository 操作数据库
+    修改场景：
+    - 想修改某个业务的处理逻辑 → 修改对应 Service 中的方法
+
+
+【前端页面模板】
+------------------------------------------
+
+36. templates/fragments/header.html
+    作用：所有页面共用的头部和底部
+    包含：导航栏、页脚、CDN引用（Bootstrap Icons）
+    修改场景：
+    - 想修改网站名称 → 搜索"校园社团网站"，替换为新名称
+    - 想修改导航栏菜单 → 修改 <div class="nav-links"> 中的链接
+    - 想增加导航项    → 在 nav-links 中添加新的 <a> 标签
+    - 想修改页脚信息  → 修改 footer 片段中的文字
+
+37. templates/index.html
+    作用：网站首页
+    包含：欢迎横幅、统计数据、最新活动、通知公告、社团风采、社团资讯
+    修改场景：
+    - 修改欢迎语   → 修改 hero-banner 中的 <h1> 和 <p> 文字
+    - 调整首页板块  → 移动或增删各 card 区域
+
+38. templates/login.html
+    作用：登录页面
+    包含：左侧校园主题横幅 + 右侧登录表单 + 角色选择Tab
+    修改场景：
+    - 修改登录页左侧文字 → 修改 auth-banner 中的内容
+    - 修改登录页标题     → 修改 <h2> 中的文字
+
+39. templates/register.html
+    作用：注册页面
+    包含：左侧横幅 + 右侧注册表单（用户名、密码、姓名、手机等）
+    修改场景：
+    - 增加注册字段 → 在表单中添加新的 input 控件
+      （同时需要在 User.java 中添加对应字段）
+      （同时需要在 UserController.java 的 doRegister 中接收该字段）
+
+40. templates/club/list.html         社团列表（卡片展示）
+41. templates/club/detail.html       社团详情（含成员列表）
+42. templates/club/add.html          创建社团（表单）
+43. templates/club/edit.html         编辑社团（表单）
+
+44. templates/activity/list.html     活动列表（表格展示）
+45. templates/activity/detail.html   活动详情
+46. templates/activity/add.html      发布活动（表单）
+47. templates/activity/edit.html     编辑活动（表单）
+
+48. templates/news/list.html         资讯列表
+49. templates/news/detail.html       资讯详情
+50. templates/news/add.html          发布资讯（表单）
+51. templates/news/edit.html         编辑资讯（表单）
+
+52. templates/notice/list.html       公告列表
+53. templates/notice/detail.html     公告详情
+54. templates/notice/add.html        发布公告（表单）
+55. templates/notice/edit.html       编辑公告（表单）
+
+56. templates/message/list.html      留言板（含发表和管理员回复）
+57. templates/member/list.html       成员管理（审批/移除/改职位）
+58. templates/member/my.html         我的社团
+59. templates/admin/userList.html    用户管理（管理员专用）
+60. templates/user/profile.html      个人中心
+
+【样式文件】
+------------------------------------------
+
+61. static/css/style.css
+    作用：全站样式表（所有页面的颜色、布局、字体等）
+    修改场景：详见下方"七、修改页面样式"
+
+
+========================================================
+六、常见修改需求与操作指南
+========================================================
+
+★★★ 以下每个修改操作，完成后都需要重启项目才能生效 ★★★
+★★★ 如果只修改了 HTML 或 CSS 文件，刷新浏览器即可 ★★★
+
+
+【需求1】修改网站名称
+------------------------------------------
+文件：templates/fragments/header.html
+操作：搜索"校园社团网站"，将其替换为您想要的名称
+     （该文件中出现 2 处，导航栏和页脚各一处，都要改）
+影响：所有页面的顶部导航和底部页脚都会同步更新
+
+
+【需求2】修改网站主题颜色
+------------------------------------------
+文件：static/css/style.css
+操作：搜索以下颜色值并替换：
+     #2e7d32  →  主色调深绿（导航栏、按钮、标题等）
+     #43a047  →  主色调浅绿（悬停效果、强调色等）
+     #e8f5e9  →  极浅绿背景色
+     #f0f7f0  →  浅绿悬停背景色
+
+     例如想改成蓝色主题：
+     #2e7d32 → #1565c0（深蓝）
+     #43a047 → #1976d2（浅蓝）
+     #e8f5e9 → #e3f2fd（极浅蓝）
+     #f0f7f0 → #e8f0fe（浅蓝悬停）
+
+     用记事本的"替换"功能（Ctrl+H）批量替换即可
+
+
+【需求3】修改管理员密码
+------------------------------------------
+方式一：修改初始数据（重置后生效）
+  文件：data.sql
+  操作：找到 admin 的 INSERT 语句，修改 'admin123' 为新密码
+  注意：需要先清空数据库再重启
+
+方式二：直接改数据库（立即生效）
+  打开命令提示符，执行：
+  mysql -u root -proot -e "UPDATE t_user SET password='新密码' WHERE username='admin';" campus_community
+
+
+【需求4】添加新的管理员账号
+------------------------------------------
+方式一：修改初始数据
+  文件：data.sql
+  操作：复制 admin 的 INSERT 语句，修改用户名和密码
+  注意：role 必须设为 2
+
+方式二：直接在数据库中添加
+  mysql -u root -proot -e "INSERT INTO t_user(username,password,real_name,role,create_time) VALUES('新用户名','密码','姓名',2,NOW());" campus_community
+
+
+【需求5】修改预置的示例数据（社团、活动、资讯等）
+------------------------------------------
+文件：data.sql
+操作：
+  - 修改社团信息 → 找到对应的 INSERT INTO t_club 语句，修改内容
+  - 修改活动信息 → 找到对应的 INSERT INTO t_activity 语句
+  - 修改资讯信息 → 找到对应的 INSERT INTO t_news 语句
+  - 修改公告信息 → 找到对应的 INSERT INTO t_notice 语句
+注意：修改后需要清空数据库并重启项目
+
+
+【需求6】修改社团分类选项
+------------------------------------------
+文件1：templates/club/add.html（创建社团页面）
+文件2：templates/club/edit.html（编辑社团页面）
+操作：找到 <select name="category"> 下拉框，修改 <option> 选项
+     例如添加"音乐舞蹈"分类：
+     <option value="音乐舞蹈">音乐舞蹈</option>
+
+文件3：templates/club/list.html（社团列表页面）
+文件4：templates/index.html（首页社团风采）
+操作：如果新分类需要对应新图标，修改 th:class 中的判断条件
+     添加类似：club.category == '音乐舞蹈' ? 'bi bi-music-note' :
+
+
+【需求7】修改导航栏菜单
+------------------------------------------
+文件：templates/fragments/header.html
+操作：在 <div class="nav-links"> 中添加或修改 <a> 标签
+     格式：<a th:href="@{/路径}"><i class="bi bi-图标名"></i> 菜单名</a>
+     图标可在 https://icons.getbootstrap.com/ 查找
+
+
+【需求8】修改首页欢迎语和横幅
+------------------------------------------
+文件：templates/index.html
+操作：找到 class="hero-banner" 的 div，修改其中的 <h1> 和 <p>
+
+
+【需求9】修改登录页左侧横幅
+------------------------------------------
+文件：templates/login.html
+操作：找到 class="auth-banner" 的 div，修改其中的 <h1> 和 <p>
+
+
+【需求10】添加新的功能模块
+------------------------------------------
+需要创建 4 个文件（以"通知"模块为例说明规律）：
+  a) entity/Xxx.java          → 定义数据表结构
+  b) repository/XxxRepository.java → 定义数据库操作
+  c) service/XxxService.java  → 编写业务逻辑
+  d) controller/XxxController.java → 处理请求
+  e) templates/xxx/list.html  → 列表页面
+  f) templates/xxx/add.html   → 添加页面（如需要）
+建议参考现有的 notice（公告）模块，按相同结构创建即可
+
+
+【需求11】让某个页面不需要登录就能访问
+------------------------------------------
+文件：config/WebConfig.java
+操作：在 excludePathPatterns 中添加路径
+     例如想让留言的发表也不需要登录：
+     添加 "/message/save"
+
+
+【需求12】修改某个表单的字段
+------------------------------------------
+涉及 3 处修改（以给社团增加"成立年份"为例）：
+
+  第1步：修改实体类
+  文件：entity/Club.java
+  添加：private Integer foundYear;
+
+  第2步：修改前端表单
+  文件：templates/club/add.html 和 templates/club/edit.html
+  添加：
+    <div class="form-group">
+        <label>成立年份</label>
+        <input type="number" name="foundYear" class="form-control">
+    </div>
+
+  第3步：重启项目
+  JPA 会自动在 t_club 表中添加 found_year 列
+
+
+【需求13】修改服务器端口
+------------------------------------------
+文件：application.yml
+操作：修改 server.port 的值，例如改为 9090
+     修改后访问地址变为 http://localhost:9090
+
+
+========================================================
+七、修改页面样式（CSS）详解
+========================================================
+
+文件：static/css/style.css
+
+该文件是全站唯一的样式文件，约 600+ 行。
+以下是各区域的位置说明：
+
+  行1-20      全局基础样式（字体、背景色）
+  行22-60     导航栏样式（.navbar）
+  行62-100    页脚样式（.footer）
+  行102-140   主体内容区域（.main-content）
+  行142-175   首页欢迎横幅（.hero-banner）
+  行177-200   统计卡片（.stat-card）
+  行202-220   列表项样式（.list-item）
+  行222-270   社团卡片样式（.club-card）
+  行272-310   表格样式（table）
+  行312-360   按钮样式（.btn）
+  行362-410   表单样式（.form-control）
+  行412-440   标签样式（.tag）
+  行442-620   登录注册页样式（.auth-wrapper）
+
+  常见样式修改：
+
+  修改全站字体大小 → 搜索 font-size
+  修改导航栏高度   → 修改 .navbar 的 padding
+  修改卡片圆角     → 修改 border-radius 的值
+  修改按钮颜色     → 修改 .btn-primary 的 background
+  修改页面最大宽度 → 修改 .main-content 的 max-width
+
+
+========================================================
+八、Thymeleaf 模板语法速查
+========================================================
+
+前端页面使用 Thymeleaf 模板引擎，以下是常用语法：
+
+  显示文字：   th:text="${变量名}"
+  判断显示：   th:if="${条件}"
+  循环列表：   th:each="item : ${列表}"
+  链接地址：   th:href="@{/路径}"
+  表单提交：   th:action="@{/提交路径}"
+  引入片段：   th:replace="fragments/header :: navbar"
+
+  示例：
+  <span th:text="${user.username}">用户名</span>
+  → 显示用户的用户名
+
+  <a th:if="${session.loginUser.role == 2}">管理</a>
+  → 只有管理员才能看到这个链接
+
+  <div th:each="club : ${clubs}">
+      <h3 th:text="${club.name}">社团名</h3>
+  </div>
+  → 循环显示所有社团
+
+
+========================================================
+九、注意事项
+========================================================
+
+  1. 修改 Java 代码后必须重启项目才能生效
+  2. 修改 HTML/CSS 文件后，刷新浏览器即可看到效果
+     （如果没有效果，尝试 Ctrl+F5 强制刷新）
+  3. 修改 data.sql 后，需要先清空数据库再重启才能重新初始化
+  4. 建议修改前先备份原文件
+  5. 不要删除实体类（entity/）中已有的字段，只能增加
+  6. 图标名称可在 https://icons.getbootstrap.com/ 查找
+  7. Bootstrap Icons 是在线加载的，需要联网才能显示图标
+
+
+========================================================
+========================================================

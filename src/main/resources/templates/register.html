@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('注册 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="auth-wrapper">
+    <div class="auth-box auth-box-wide">
+        <div class="auth-banner">
+            <div class="auth-banner-content">
+                <i class="bi bi-mortarboard-fill" style="font-size: 48px;"></i>
+                <h3>校园社团网站</h3>
+                <p>创建账号，开启精彩校园生活</p>
+                <div class="auth-banner-features">
+                    <div><i class="bi bi-check-circle"></i> 加入社团组织</div>
+                    <div><i class="bi bi-check-circle"></i> 参与校园活动</div>
+                    <div><i class="bi bi-check-circle"></i> 浏览校园资讯</div>
+                    <div><i class="bi bi-check-circle"></i> 在线交流互动</div>
+                </div>
+            </div>
+        </div>
+        <div class="auth-form-area">
+            <h2><i class="bi bi-person-plus"></i> 用户注册</h2>
+            <p class="subtitle">填写信息，加入校园社团大家庭</p>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <form th:action="@{/doRegister}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="bi bi-person"></i> 用户名 <span class="required">*</span></label>
+                        <input type="text" name="username" class="form-control" placeholder="请输入用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="bi bi-lock"></i> 密码 <span class="required">*</span></label>
+                        <input type="password" name="password" class="form-control" placeholder="请输入密码" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="bi bi-person-vcard"></i> 真实姓名</label>
+                        <input type="text" name="realName" class="form-control" placeholder="请输入真实姓名">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="bi bi-card-text"></i> 学号</label>
+                        <input type="text" name="studentNo" class="form-control" placeholder="请输入学号">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="bi bi-building"></i> 院系</label>
+                        <input type="text" name="department" class="form-control" placeholder="请输入院系">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="bi bi-gender-ambiguous"></i> 性别</label>
+                        <select name="gender" class="form-control">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="bi bi-phone"></i> 手机号</label>
+                        <input type="text" name="phone" class="form-control" placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="bi bi-envelope"></i> 邮箱</label>
+                        <input type="email" name="email" class="form-control" placeholder="请输入邮箱">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 8px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                        <i class="bi bi-person-plus"></i> 注 册
+                    </button>
+                </div>
+            </form>
+            <div class="auth-footer">
+                已有账号？<a th:href="@{/login}">立即登录</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

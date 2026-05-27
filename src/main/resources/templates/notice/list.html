@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('通知公告 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-megaphone"></i> 通知公告</h2>
+            <a th:if="${session.loginUser != null and session.loginUser.role == 2}" th:href="@{/notice/add}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> 发布公告</a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form class="search-bar" th:action="@{/notice/list}" method="get">
+            <input type="text" name="keyword" class="form-control" placeholder="搜索公告标题..." th:value="${keyword}">
+            <button type="submit" class="btn btn-primary">搜索</button>
+            <a th:href="@{/notice/list}" class="btn btn-outline">重置</a>
+        </form>
+
+        <div th:if="${#lists.isEmpty(notices)}" class="empty-state">暂无公告</div>
+
+        <div th:unless="${#lists.isEmpty(notices)}">
+            <div th:each="notice : ${notices}" class="list-item">
+                <div>
+                    <a th:href="@{/notice/detail/{id}(id=${notice.id})}" class="item-title">
+                        <span th:if="${notice.top == 1}" class="pin-icon"><i class="bi bi-pin-fill"></i> 置顶</span>
+                        <span th:text="${notice.title}"></span>
+                    </a>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="item-meta" th:text="'发布人: ' + ${notice.publisher}"></span>
+                    <span class="item-meta" th:text="${#temporals.format(notice.createTime, 'yyyy-MM-dd')}"></span>
+                    <a th:if="${session.loginUser != null and session.loginUser.role == 2}"
+                       th:href="@{/notice/delete/{id}(id=${notice.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('确定删除？')">删除</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

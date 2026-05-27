@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('社团信息 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-people"></i> 社团信息</h2>
+            <a th:if="${session.loginUser != null and session.loginUser.role == 2}" th:href="@{/club/add}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> 创建社团</a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form class="search-bar" th:action="@{/club/list}" method="get">
+            <input type="text" name="keyword" class="form-control" placeholder="搜索社团名称..." th:value="${keyword}">
+            <button type="submit" class="btn btn-primary">搜索</button>
+            <a th:href="@{/club/list}" class="btn btn-outline">重置</a>
+        </form>
+
+        <div th:if="${#lists.isEmpty(clubs)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无社团信息</div>
+
+        <div class="grid-3">
+            <a th:each="club,stat : ${clubs}" class="club-card" th:href="@{/club/detail/{id}(id=${club.id})}">
+                <div class="club-icon" th:classappend="'type-' + ${(stat.index % 5) + 1}">
+                    <i th:class="${club.category == '学术科技' ? 'bi bi-laptop' : (club.category == '文化艺术' ? 'bi bi-brush' : (club.category == '体育运动' ? 'bi bi-dribbble' : (club.category == '志愿公益' ? 'bi bi-heart' : (club.category == '创新创业' ? 'bi bi-lightbulb' : 'bi bi-flag'))))}"></i>
+                </div>
+                <div class="club-body">
+                    <h3 th:text="${club.name}"></h3>
+                    <p><i class="bi bi-tag"></i> <span th:text="${club.category != null ? club.category : '未分类'}"></span></p>
+                    <p><i class="bi bi-person-fill"></i> <span th:text="'社长: ' + ${club.president != null ? club.president : '未设置'}"></span></p>
+                    <p><i class="bi bi-people-fill"></i> <span th:text="${club.memberCount} + '人'"></span></p>
+                    <div style="margin-top: 8px;">
+                        <span th:if="${club.status == 1}" class="tag tag-green">正常</span>
+                        <span th:if="${club.status == 0}" class="tag tag-orange">待审核</span>
+                        <span th:if="${club.status == 2}" class="tag tag-red">已解散</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

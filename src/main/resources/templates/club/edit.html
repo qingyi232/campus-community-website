@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('编辑社团 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-pencil-square"></i> 编辑社团</h2>
+            <a th:href="@{/club/detail/{id}(id=${club.id})}" class="btn btn-outline btn-sm">返回详情</a>
+        </div>
+        <form th:action="@{/club/update}" method="post">
+            <input type="hidden" name="id" th:value="${club.id}">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>社团名称 *</label>
+                    <input type="text" name="name" class="form-control" th:value="${club.name}" required>
+                </div>
+                <div class="form-group">
+                    <label>社团类别</label>
+                    <select name="category" class="form-control">
+                        <option value="学术科技" th:selected="${club.category == '学术科技'}">学术科技</option>
+                        <option value="文化艺术" th:selected="${club.category == '文化艺术'}">文化艺术</option>
+                        <option value="体育运动" th:selected="${club.category == '体育运动'}">体育运动</option>
+                        <option value="志愿公益" th:selected="${club.category == '志愿公益'}">志愿公益</option>
+                        <option value="创新创业" th:selected="${club.category == '创新创业'}">创新创业</option>
+                        <option value="其他" th:selected="${club.category == '其他'}">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>社长姓名</label>
+                    <input type="text" name="president" class="form-control" th:value="${club.president}">
+                </div>
+                <div class="form-group">
+                    <label>联系电话</label>
+                    <input type="text" name="contactPhone" class="form-control" th:value="${club.contactPhone}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>社团简介</label>
+                <textarea name="description" class="form-control" th:text="${club.description}"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">保存修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

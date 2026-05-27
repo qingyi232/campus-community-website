@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('活动管理 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-calendar-event"></i> 活动管理</h2>
+            <a th:if="${session.loginUser != null and session.loginUser.role == 2}" th:href="@{/activity/add}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> 发布活动</a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form class="search-bar" th:action="@{/activity/list}" method="get">
+            <input type="text" name="keyword" class="form-control" placeholder="搜索活动名称..." th:value="${keyword}">
+            <button type="submit" class="btn btn-primary">搜索</button>
+            <a th:href="@{/activity/list}" class="btn btn-outline">重置</a>
+        </form>
+
+        <div th:if="${#lists.isEmpty(activities)}" class="empty-state">暂无活动</div>
+
+        <div class="table-wrapper" th:unless="${#lists.isEmpty(activities)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>活动名称</th>
+                    <th>所属社团</th>
+                    <th>活动地点</th>
+                    <th>开始时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="act : ${activities}">
+                    <td><a th:href="@{/activity/detail/{id}(id=${act.id})}" th:text="${act.title}"></a></td>
+                    <td th:text="${act.clubName != null ? act.clubName : '-'}"></td>
+                    <td th:text="${act.location != null ? act.location : '-'}"></td>
+                    <td th:text="${act.startTime != null ? #temporals.format(act.startTime, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                    <td>
+                        <span th:if="${act.status == 0}" class="tag tag-blue">报名中</span>
+                        <span th:if="${act.status == 1}" class="tag tag-green">进行中</span>
+                        <span th:if="${act.status == 2}" class="tag tag-red">已结束</span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/activity/detail/{id}(id=${act.id})}" class="btn btn-outline btn-sm">详情</a>
+                            <a th:if="${session.loginUser != null and session.loginUser.role == 2}"
+                               th:href="@{/activity/edit/{id}(id=${act.id})}" class="btn btn-warning btn-sm">编辑</a>
+                            <a th:if="${session.loginUser != null and session.loginUser.role == 2}"
+                               th:href="@{/activity/delete/{id}(id=${act.id})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('确定删除？')">删除</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

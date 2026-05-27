@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('首页 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="hero-banner">
+        <h1><i class="bi bi-mortarboard"></i> 欢迎来到校园社团网站</h1>
+        <p>发现精彩社团，参与丰富活动，共建美好校园</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-number" th:text="${clubCount}">0</div>
+            <div class="stat-label">社团总数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+            <div class="stat-number" th:text="${activityCount}">0</div>
+            <div class="stat-label">活动总数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-file-text-fill"></i></div>
+            <div class="stat-number" th:text="${newsCount}">0</div>
+            <div class="stat-label">资讯总数</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="bi bi-calendar-event"></i> 最新活动</h2>
+                <a th:href="@{/activity/list}" class="btn btn-outline btn-sm">查看更多</a>
+            </div>
+            <div th:if="${#lists.isEmpty(latestActivities)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无活动</div>
+            <div th:each="act : ${latestActivities}" class="list-item">
+                <a th:href="@{/activity/detail/{id}(id=${act.id})}" class="item-title"><i class="bi bi-dot"></i> <span th:text="${act.title}"></span></a>
+                <span class="item-meta" th:text="${#temporals.format(act.createTime, 'yyyy-MM-dd')}"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="bi bi-megaphone"></i> 通知公告</h2>
+                <a th:href="@{/notice/list}" class="btn btn-outline btn-sm">查看更多</a>
+            </div>
+            <div th:if="${#lists.isEmpty(latestNotices)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无公告</div>
+            <div th:each="notice : ${latestNotices}" class="list-item">
+                <a th:href="@{/notice/detail/{id}(id=${notice.id})}" class="item-title">
+                    <span th:if="${notice.top == 1}" class="pin-icon"><i class="bi bi-pin-fill"></i></span>
+                    <span th:text="${notice.title}"></span>
+                </a>
+                <span class="item-meta" th:text="${#temporals.format(notice.createTime, 'yyyy-MM-dd')}"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 4px;">
+        <div class="card-header">
+            <h2><i class="bi bi-star"></i> 社团风采</h2>
+            <a th:href="@{/club/list}" class="btn btn-outline btn-sm">查看全部</a>
+        </div>
+        <div th:if="${#lists.isEmpty(clubs)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无社团</div>
+        <div class="grid-4">
+            <a th:each="club,stat : ${clubs}" th:if="${stat.index < 8}" class="club-card" th:href="@{/club/detail/{id}(id=${club.id})}">
+                <div class="club-icon" th:classappend="'type-' + ${(stat.index % 5) + 1}">
+                    <i th:class="${club.category == '学术科技' ? 'bi bi-laptop' : (club.category == '文化艺术' ? 'bi bi-brush' : (club.category == '体育运动' ? 'bi bi-dribbble' : (club.category == '志愿公益' ? 'bi bi-heart' : 'bi bi-flag')))}"></i>
+                </div>
+                <div class="club-body">
+                    <h3 th:text="${club.name}"></h3>
+                    <p><i class="bi bi-tag"></i> <span th:text="${club.category != null ? club.category : '未分类'}"></span></p>
+                    <p><i class="bi bi-person"></i> <span th:text="${club.memberCount} + '人'"></span></p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 4px;">
+        <div class="card-header">
+            <h2><i class="bi bi-newspaper"></i> 社团资讯</h2>
+            <a th:href="@{/news/list}" class="btn btn-outline btn-sm">查看更多</a>
+        </div>
+        <div th:if="${#lists.isEmpty(latestNews)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无资讯</div>
+        <div th:each="news : ${latestNews}" class="list-item">
+            <div>
+                <a th:href="@{/news/detail/{id}(id=${news.id})}" class="item-title"><i class="bi bi-dot"></i> <span th:text="${news.title}"></span></a>
+                <span style="margin-left: 10px;" class="tag tag-blue" th:if="${news.clubName != null}" th:text="${news.clubName}"></span>
+            </div>
+            <span class="item-meta" th:text="${#temporals.format(news.createTime, 'yyyy-MM-dd')}"></span>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,420 @@
+========================================================
+    校园社团网站 - 部署运行指南
+========================================================
+
+本文档将指导您从零开始，在您的电脑上部署并运行本项目。
+请严格按照以下步骤操作，每一步都不要跳过。
+
+
+========================================================
+一、环境要求
+========================================================
+
+您的电脑需要安装以下三个软件：
+
+  1. JDK 17（Java开发工具包）
+  2. MySQL 8.0（数据库）
+  3. Apache Maven 3.6+（项目构建工具）
+
+如果您已经安装了以上软件，可以跳到 "二、检查环境" 部分。
+如果没有安装，请按下面的步骤逐一安装。
+
+
+========================================================
+二、安装 JDK 17
+========================================================
+
+1. 打开浏览器，访问 Oracle JDK 下载页面：
+   https://www.oracle.com/java/technologies/downloads/#java17
+
+   或者使用免费的 OpenJDK（推荐）：
+   https://adoptium.net/zh-CN/temurin/releases/?version=17
+
+2. 选择 Windows x64 版本，下载 .msi 安装包（或 .zip 压缩包）
+
+3. 双击 .msi 安装包，一路点击"下一步"即可完成安装
+   默认安装路径一般为：C:\Program Files\Eclipse Adoptium\jdk-17.x.x.x-hotspot
+
+4. 配置环境变量（如果安装程序没有自动配置）：
+   a) 右键点击桌面的"此电脑" → "属性" → "高级系统设置"
+   b) 点击"环境变量"按钮
+   c) 在"系统变量"中：
+      - 新建变量 JAVA_HOME，值为 JDK 安装路径
+        例如：C:\Program Files\Eclipse Adoptium\jdk-17.0.9.9-hotspot
+      - 找到 Path 变量，点击"编辑"，新建一行：
+        %JAVA_HOME%\bin
+
+5. 验证安装：
+   a) 按 Win+R，输入 cmd，回车，打开命令提示符
+   b) 输入以下命令并回车：
+      java -version
+   c) 如果看到类似以下输出，说明安装成功：
+      openjdk version "17.0.9" 2023-10-17
+      ...
+
+
+========================================================
+三、安装 MySQL 8.0
+========================================================
+
+1. 打开浏览器，访问 MySQL 下载页面：
+   https://dev.mysql.com/downloads/installer/
+
+2. 下载 MySQL Installer（mysql-installer-community-8.0.x.x.msi）
+   注意：页面可能要求登录，点击下方的 "No thanks, just start my download" 即可跳过
+
+3. 双击安装包运行：
+   a) 选择 "Custom" 安装类型
+   b) 选择安装以下组件：
+      - MySQL Server 8.0.x
+      - MySQL Workbench（可选，图形化管理工具）
+   c) 点击 "Next" → "Execute" 开始安装
+
+4. 配置 MySQL：
+   a) Config Type 选择 "Development Computer"
+   b) 端口保持默认 3306
+   c) Authentication Method 选择 "Use Legacy Authentication Method"
+      （重要！选择旧版认证方式，兼容性更好）
+   d) 设置 root 密码为：root
+      ★★★ 非常重要：请务必将 root 密码设置为 root ★★★
+      ★★★ 如果您想设置其他密码，请参见下方"修改数据库密码"部分 ★★★
+   e) Windows Service 保持默认，勾选 "Start the MySQL Server at System Startup"
+   f) 点击 "Execute" 完成配置
+
+5. 验证安装：
+   a) 按 Win+R，输入 cmd，回车
+   b) 输入以下命令：
+      mysql -u root -proot
+      （注意 -p 和密码之间没有空格）
+   c) 如果看到 mysql> 提示符，说明安装成功
+   d) 输入 exit 退出
+
+   ※ 如果提示 "mysql 不是内部命令"，需要将 MySQL 的 bin 目录加入 Path：
+     - 找到 MySQL 安装目录（通常为 C:\Program Files\MySQL\MySQL Server 8.0\bin）
+     - 按照 JDK 相同的方式，将该路径添加到系统环境变量 Path 中
+     - 关闭并重新打开命令提示符
+
+
+========================================================
+四、安装 Apache Maven
+========================================================
+
+1. 打开浏览器，访问 Maven 下载页面：
+   https://maven.apache.org/download.cgi
+
+2. 下载 Binary zip archive：
+   apache-maven-3.9.9-bin.zip（或最新版本）
+
+3. 将压缩包解压到任意目录，例如：
+   C:\apache-maven-3.9.9
+
+4. 配置环境变量：
+   a) 右键点击桌面的"此电脑" → "属性" → "高级系统设置"
+   b) 点击"环境变量"按钮
+   c) 在"系统变量"中：
+      - 新建变量 MAVEN_HOME，值为 Maven 解压路径
+        例如：C:\apache-maven-3.9.9
+      - 找到 Path 变量，点击"编辑"，新建一行：
+        %MAVEN_HOME%\bin
+
+5. 验证安装：
+   a) 关闭并重新打开命令提示符（Win+R → cmd → 回车）
+   b) 输入以下命令：
+      mvn -version
+   c) 如果看到类似以下输出，说明安装成功：
+      Apache Maven 3.9.9 (...)
+      Maven home: C:\apache-maven-3.9.9
+      Java version: 17.x.x
+      ...
+
+
+========================================================
+五、检查环境（确认三个软件都安装好了）
+========================================================
+
+打开命令提示符（Win+R → cmd → 回车），依次执行：
+
+  java -version
+  （应显示 17.x.x）
+
+  mysql --version
+  （应显示 Ver 8.0.x）
+
+  mvn -version
+  （应显示 Apache Maven 3.x.x）
+
+如果以上三个命令都能正确输出版本信息，说明环境准备完毕。
+
+
+========================================================
+六、创建数据库
+========================================================
+
+1. 打开命令提示符（Win+R → cmd → 回车）
+
+2. 登录 MySQL：
+   mysql -u root -proot
+
+3. 在 mysql> 提示符下，输入以下命令创建数据库：
+   CREATE DATABASE campus_community DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+4. 验证数据库创建成功：
+   SHOW DATABASES;
+   （应该能在列表中看到 campus_community）
+
+5. 退出 MySQL：
+   exit
+
+★ 注意：只需要创建空数据库即可！
+★ 不需要手动创建表，程序启动时会自动创建所有表并填充示例数据。
+
+
+========================================================
+七、修改数据库密码（仅在您的 MySQL 密码不是 root 时需要）
+========================================================
+
+如果您安装 MySQL 时设置的 root 密码不是 "root"，
+需要修改项目配置文件中的数据库密码：
+
+1. 用记事本打开以下文件：
+   项目目录\src\main\resources\application.yml
+
+2. 找到以下两行：
+     username: root
+     password: root
+
+3. 将 password 后面的 root 改为您的实际 MySQL 密码
+   例如，如果您的密码是 123456，则改为：
+     password: 123456
+
+4. 保存文件（Ctrl+S）
+
+
+========================================================
+八、启动项目
+========================================================
+
+方式一：使用命令行启动（推荐）
+------------------------------------------
+
+1. 打开命令提示符（Win+R → cmd → 回车）
+
+2. 进入项目目录，例如：
+   cd /d F:\校园社区网站
+   （请替换为您实际存放项目的路径）
+
+3. 首次运行需要下载依赖（需要联网），执行：
+   mvn clean spring-boot:run
+
+4. 等待启动，当看到类似以下信息时，说明启动成功：
+   Started CampusCommunityApplication in x.xxx seconds
+
+   ★ 首次启动可能需要 3-10 分钟，因为需要下载依赖包
+   ★ 下载过程中请保持网络连接
+   ★ 如果下载很慢，请参见下方"Maven 下载慢解决方案"
+
+5. 启动成功后，打开浏览器，在地址栏输入：
+   http://localhost:8080
+
+6. 即可看到校园社团网站首页！
+
+
+方式二：使用 IntelliJ IDEA 启动
+------------------------------------------
+
+1. 打开 IntelliJ IDEA
+
+2. 点击 File → Open，选择项目文件夹（包含 pom.xml 的那个文件夹）
+
+3. IDEA 会自动识别为 Maven 项目，等待依赖下载完成
+   （右下角会显示下载进度）
+
+4. 找到主启动类：
+   src/main/java/com/campus/community/CampusCommunityApplication.java
+
+5. 右键点击该文件 → Run 'CampusCommunityApplication'
+
+6. 看到控制台输出 "Started CampusCommunityApplication" 后，
+   打开浏览器访问 http://localhost:8080
+
+
+========================================================
+九、访问网站
+========================================================
+
+打开浏览器（推荐 Chrome 或 Edge），在地址栏输入：
+
+  http://localhost:8080
+
+即可访问校园社团网站。
+
+测试账号（详见 测试账号.txt）：
+
+  ┌─────────────────────────────────────┐
+  │  普通用户                           │
+  │  用户名: zhangsan                   │
+  │  密码:   123456                     │
+  │                                     │
+  │  系统管理员                         │
+  │  用户名: admin                      │
+  │  密码:   admin123                   │
+  └─────────────────────────────────────┘
+
+登录时请注意选择正确的身份类型（普通用户 或 系统管理员）。
+
+管理员可以管理所有模块：用户、社团、活动、资讯、公告、留言。
+普通用户可以浏览信息、加入社团、发表留言。
+
+
+========================================================
+十、停止项目
+========================================================
+
+方式一：在命令行窗口按 Ctrl+C，然后输入 Y 确认停止。
+方式二：关闭命令行窗口即可。
+方式三：在 IDEA 中点击控制台旁的红色停止按钮。
+
+
+========================================================
+十一、常见问题与解决方案
+========================================================
+
+问题1：mvn 命令提示"不是内部或外部命令"
+------------------------------------------
+原因：Maven 环境变量未配置。
+解决：
+  a) 确认 Maven 已解压到某个目录，例如 C:\apache-maven-3.9.9
+  b) 将 C:\apache-maven-3.9.9\bin 添加到系统 Path 环境变量
+  c) 关闭并重新打开命令提示符
+
+
+问题2：java 命令提示"不是内部或外部命令"
+------------------------------------------
+原因：JDK 环境变量未配置。
+解决：
+  a) 确认 JDK 已安装
+  b) 将 JDK 的 bin 目录添加到系统 Path 环境变量
+  c) 关闭并重新打开命令提示符
+
+
+问题3：启动时提示数据库连接失败
+------------------------------------------
+错误信息类似：Communications link failure 或 Access denied
+
+解决步骤：
+  a) 确认 MySQL 服务已启动：
+     - 按 Win+R，输入 services.msc，回车
+     - 找到 MySQL80（或 MySQL），确认状态为"正在运行"
+     - 如果没有运行，右键 → 启动
+
+  b) 确认数据库已创建：
+     mysql -u root -proot -e "SHOW DATABASES;"
+     检查输出中是否有 campus_community
+
+  c) 确认密码正确：
+     检查 application.yml 中的 password 是否与您的 MySQL root 密码一致
+
+
+问题4：Maven 下载依赖很慢
+------------------------------------------
+Maven 默认从国外服务器下载依赖，可能很慢。可以配置国内镜像：
+
+  a) 找到 Maven 配置文件，路径为：
+     C:\Users\您的用户名\.m2\settings.xml
+     （如果没有 .m2 文件夹和 settings.xml 文件，手动创建）
+
+  b) 用记事本打开 settings.xml，将全部内容替换为以下内容：
+
+     <?xml version="1.0" encoding="UTF-8"?>
+     <settings>
+       <mirrors>
+         <mirror>
+           <id>aliyun</id>
+           <name>Aliyun Maven Mirror</name>
+           <url>https://maven.aliyun.com/repository/public</url>
+           <mirrorOf>central</mirrorOf>
+         </mirror>
+       </mirrors>
+     </settings>
+
+  c) 保存文件，重新执行 mvn clean spring-boot:run
+
+
+问题5：启动时端口被占用（端口 8080 已在使用中）
+------------------------------------------
+错误信息：Web server failed to start. Port 8080 was already in use.
+
+解决方案一：关闭占用 8080 端口的程序
+  a) 打开命令提示符，执行：
+     netstat -ano | findstr 8080
+  b) 记录最后一列的 PID（进程号）
+  c) 执行：
+     taskkill /PID 进程号 /F
+
+解决方案二：修改项目端口
+  a) 打开 src\main\resources\application.yml
+  b) 将 port: 8080 改为其他端口，例如 port: 9090
+  c) 重新启动项目，访问 http://localhost:9090
+
+
+问题6：页面中文显示乱码
+------------------------------------------
+本项目已配置 UTF-8 编码，一般不会出现此问题。
+如果出现乱码：
+  a) 确认 MySQL 数据库字符集为 utf8mb4：
+     mysql -u root -proot -e "SHOW CREATE DATABASE campus_community;"
+  b) 如果不是 utf8mb4，删除并重新创建数据库：
+     mysql -u root -proot -e "DROP DATABASE campus_community;"
+     mysql -u root -proot -e "CREATE DATABASE campus_community DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  c) 重新启动项目
+
+
+问题7：想要重置所有数据
+------------------------------------------
+如果数据被误操作导致混乱，可以重置：
+  a) 登录 MySQL：
+     mysql -u root -proot
+  b) 删除数据库：
+     DROP DATABASE campus_community;
+  c) 重新创建：
+     CREATE DATABASE campus_community DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  d) 退出 MySQL：
+     exit
+  e) 重新启动项目，所有数据将恢复为初始状态
+
+
+========================================================
+十二、项目技术说明
+========================================================
+
+  后端框架：  Spring Boot 2.7.18
+  前端模板：  Thymeleaf
+  数据库：    MySQL 8.0
+  ORM框架：   Spring Data JPA (Hibernate)
+  构建工具：  Apache Maven
+  Java版本：  JDK 17
+  图标库：    Bootstrap Icons（在线CDN加载，需联网）
+
+  项目目录结构：
+  ├── pom.xml                          Maven 依赖配置
+  ├── src/
+  │   └── main/
+  │       ├── java/                    Java 后端代码
+  │       │   └── com/campus/community/
+  │       │       ├── controller/      控制器（处理请求）
+  │       │       ├── entity/          实体类（数据模型）
+  │       │       ├── repository/      数据访问层
+  │       │       ├── service/         业务逻辑层
+  │       │       └── CampusCommunityApplication.java  启动类
+  │       └── resources/
+  │           ├── application.yml      项目配置文件
+  │           ├── data.sql             初始化数据
+  │           ├── static/css/          样式文件
+  │           └── templates/           前端页面模板
+  ├── 测试账号.txt                     测试账号信息
+  ├── 部署文档.txt                     本文档
+  └── README.md                        项目简介
+
+
+========================================================
+========================================================

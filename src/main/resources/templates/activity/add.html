@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('发布活动 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-plus-circle"></i> 发布活动</h2>
+            <a th:href="@{/activity/list}" class="btn btn-outline btn-sm">返回列表</a>
+        </div>
+        <form th:action="@{/activity/save}" method="post">
+            <div class="form-group">
+                <label>活动名称 *</label>
+                <input type="text" name="title" class="form-control" placeholder="请输入活动名称" required>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>所属社团</label>
+                    <select name="clubId" class="form-control">
+                        <option value="">请选择社团</option>
+                        <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>活动地点</label>
+                    <input type="text" name="location" class="form-control" placeholder="请输入活动地点">
+                </div>
+                <div class="form-group">
+                    <label>开始时间</label>
+                    <input type="datetime-local" name="startTime" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>结束时间</label>
+                    <input type="datetime-local" name="endTime" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>最大参与人数</label>
+                    <input type="number" name="maxParticipants" class="form-control" placeholder="不填则不限">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>活动详情</label>
+                <textarea name="content" class="form-control" placeholder="请输入活动详情"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">发布活动</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

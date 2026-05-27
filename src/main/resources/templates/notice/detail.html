@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('公告详情 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-megaphone-fill"></i> 公告详情</h2>
+            <div class="btn-group">
+                <a th:href="@{/notice/list}" class="btn btn-outline btn-sm">返回列表</a>
+                <a th:if="${session.loginUser != null and session.loginUser.role == 2}"
+                   th:href="@{/notice/edit/{id}(id=${notice.id})}" class="btn btn-warning btn-sm">编辑</a>
+            </div>
+        </div>
+
+        <div class="detail-header">
+            <h1>
+                <span th:if="${notice.top == 1}" class="pin-icon"><i class="bi bi-pin-fill"></i> 置顶</span>
+                <span th:text="${notice.title}"></span>
+            </h1>
+            <div class="detail-meta">
+                <span th:text="'发布人: ' + ${notice.publisher}"></span>
+                <span th:text="'发布时间: ' + ${#temporals.format(notice.createTime, 'yyyy-MM-dd HH:mm')}"></span>
+                <span th:text="'浏览: ' + ${notice.viewCount} + '次'"></span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="detail-body" style="white-space: pre-wrap;" th:text="${notice.content != null ? notice.content : '暂无内容'}"></div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('用户管理 - 校园社团网站')"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<div class="main-content">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="bi bi-gear"></i> 用户管理</h2>
+            <div style="display:flex; gap:12px; align-items:center; font-size:13px; color:#777;">
+                <span><i class="bi bi-circle-fill" style="color:#1565c0; font-size:8px;"></i> 普通用户</span>
+                <span><i class="bi bi-circle-fill" style="color:#e65100; font-size:8px;"></i> 系统管理员</span>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div th:if="${#lists.isEmpty(users)}" class="empty-state"><i class="bi bi-inbox"></i> 暂无用户</div>
+
+        <div class="table-wrapper" th:unless="${#lists.isEmpty(users)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>姓名</th>
+                    <th>学号</th>
+                    <th>院系</th>
+                    <th>手机</th>
+                    <th>角色</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td><i class="bi bi-person"></i> <span th:text="${user.username}"></span></td>
+                    <td th:text="${user.realName != null ? user.realName : '-'}"></td>
+                    <td th:text="${user.studentNo != null ? user.studentNo : '-'}"></td>
+                    <td th:text="${user.department != null ? user.department : '-'}"></td>
+                    <td th:text="${user.phone != null ? user.phone : '-'}"></td>
+                    <td>
+                        <span th:if="${user.role == 0}" class="tag tag-blue"><i class="bi bi-person"></i> 普通用户</span>
+                        <span th:if="${user.role == 2}" class="tag tag-orange"><i class="bi bi-shield-lock"></i> 系统管理员</span>
+                    </td>
+                    <td th:text="${#temporals.format(user.createTime, 'yyyy-MM-dd')}"></td>
+                    <td>
+                        <a th:if="${user.role != 2}" th:href="@{/admin/user/delete/{id}(id=${user.id})}"
+                           class="btn btn-danger btn-sm" onclick="return confirm('确定删除该用户？')"><i class="bi bi-trash"></i> 删除</a>
+                        <span th:if="${user.role == 2}" class="tag tag-green"><i class="bi bi-shield-lock"></i> 当前管理员</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>
